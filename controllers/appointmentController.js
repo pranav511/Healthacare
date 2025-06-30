@@ -12,7 +12,7 @@ exports.getAppointments = (req, res) => {
   let { page, limit, search } = req.query;
   page = page ? parseInt(page) : 1;
   limit = limit ? parseInt(limit) : 5;
-  const offset = (page - 1) * limit;
+  const offset = (page - 1) * limit;    
 
   const whereClause = search
     ? { patientName: { [Appointment.sequelize.Op.like]: `%${search}%` } }
