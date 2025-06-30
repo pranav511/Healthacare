@@ -54,3 +54,23 @@ exports.deleteAppointment = (req, res) => {
     })
     .catch(err => res.status(500).json({ message: 'Server error', error: err.message }));
 };
+
+// Update only the reportImage of an appointment
+exports.uploadReportImage = (req, res) => {
+  const appointmentId = req.params.id;
+
+  if (!req.file) {
+    return res.status(400).json({ message: 'No file uploaded' });
+  }
+
+  Appointment.update(
+    { reportImage: req.file.filename },
+    { where: { id: appointmentId } }
+  )
+    .then(([affected]) => {
+      if (affected === 0) return res.status(404).json({ message: 'Appointment not found' });
+      res.json({ message: 'Image uploaded and appointment updated', filename: req.file.filename });
+    })
+    .catch(err => res.status(500).json({ message: 'Server error', error: err.message }));
+};
+
