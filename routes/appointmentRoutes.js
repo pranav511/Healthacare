@@ -13,11 +13,16 @@ router.delete('/:id', verifyToken, appointmentController.deleteAppointment);
 
 // Add this route before other routes
 router.post('/upload', verifyToken, upload.single('image'), (req, res) => {
+    upload.single('image')
+
   if (!req.file) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
   res.json({ filename: req.file.filename });
 });
+
+// Upload image for a specific appointment
+router.post('/:id/upload-image', verifyToken, upload.single('image'), appointmentController.uploadReportImage);
 
 
 module.exports = router;
