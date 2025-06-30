@@ -12,7 +12,7 @@ exports.getAppointments = (req, res) => {
   let { page, limit, search } = req.query;
   page = page ? parseInt(page) : 1;
   limit = limit ? parseInt(limit) : 5;
-  const offset = (page - 1) * limit;    
+  const offset = (page - 1) * limit;
 
   const whereClause = search
     ? { patientName: { [Appointment.sequelize.Op.like]: `%${search}%` } }
@@ -34,6 +34,7 @@ exports.getAppointments = (req, res) => {
     })
     .catch(err => res.status(500).json({ message: 'Server error', error: err.message }));
 };
+
 
 // Update Appointment
 exports.updateAppointment = (req, res) => {
@@ -57,20 +58,33 @@ exports.deleteAppointment = (req, res) => {
 
 // Update only the reportImage of an appointment
 exports.uploadReportImage = (req, res) => {
-  const appointmentId = req.params.id;
+  const appointmentId = parseInt(req.params.id);
+  console.log('Appointment ID:', appointmentId);
 
-  if (!req.file) {
-    return res.status(400).json({ message: 'No file uploaded' });
-  }
+  Appointment.findOne({ where: { id: appointmentId } })
+    .then(appointment => {
+      if (!appointment) {
+        return res.status(404).json({ message: 'Appointment not found' });
+      }
 
-  Appointment.update(
-    { reportImage: req.file.filename },
-    { where: { id: appointmentId } }
-  )
-    .then(([affected]) => {
-      if (affected === 0) return res.status(404).json({ message: 'Appointment not found' });
-      res.json({ message: 'Image uploaded and appointment updated', filename: req.file.filename });
+      console.log('Appointment found:', appointment.id); // ✅ Corrected this line
+
+      if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+      }
+
+      appointment.update({ reportImage: req.file.filename })
+        .then(() => {
+          res.json({
+            message: 'Image uploaded successfully',
+            filename: req.file.filename
+          });
+        });
     })
-    .catch(err => res.status(500).json({ message: 'Server error', error: err.message }));
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: 'Server error', error: err.message });
+    });
 };
+
 

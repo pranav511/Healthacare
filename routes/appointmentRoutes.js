@@ -22,7 +22,10 @@ router.post('/upload', verifyToken, upload.single('image'), (req, res) => {
 });
 
 // Upload image for a specific appointment
+console.log('Appointment Upload Route Active');
+
 router.post('/:id/upload-image', verifyToken, upload.single('image'), appointmentController.uploadReportImage);
+
 
 
 module.exports = router;
